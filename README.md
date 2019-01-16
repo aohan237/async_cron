@@ -18,9 +18,6 @@ pip install async-cron
 
 --------------
 
-All you need is a loop, then enjoy. you can refer to examples, as well.
-
-Consumer:
 
 ```python
 import asyncio
