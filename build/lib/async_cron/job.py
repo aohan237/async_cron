@@ -6,6 +6,7 @@ import uuid
 from dateutil import tz
 import datetime
 from .units import SECOND, MINUTE, HOUR, DAY, MONTH, WEEK
+from .logger import get_logger
 
 
 class CronJob:
@@ -15,7 +16,7 @@ class CronJob:
 
     def __init__(self, name: str=None, interval: int=1, scheduler=None,
                  loop=None, tz: str=None, run_total: int=None,
-                 tolerance: int=10):
+                 tolerance: int=10, log_level=None):
         self.name = name or str(uuid.uuid1())
         self.interval = interval
         self.job_func = None
@@ -32,6 +33,7 @@ class CronJob:
         self.loop = loop or asyncio.get_event_loop()
         self.gte_day = False
         self.tz = tz
+        self.logger = get_logger(log_level=log_level)
         # tolerance means if now - at_exact_time <= tolerance,
         # this job will still be applied
         self.tolerance = datetime.timedelta(
@@ -135,12 +137,13 @@ class CronJob:
                 self.at_exact_time = arrow_time
                 self.run_total = 1
             except Exception as tmp:
-                print('parse datetime error', tmp)
+                self.logger.exception(tmp)
+                self.logger.info('parse datetime error')
                 try:
                     self.at_time = self.split_time(time_string)
-                    print("at_time", self.at_time)
                 except Exception as tmp:
-                    print('parse hour and minute error', tmp)
+                    self.logger.exception(tmp)
+                    self.logger.info('parse hour and minute error')
         return self
 
     def every(self, interval: int=None):
