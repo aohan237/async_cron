@@ -12,7 +12,7 @@ you can easily integrate this lib to you async program,with no blocking
 
 --------------
 
-pip install async_cron
+pip install async-cron
 
 ## Usage examples
 
