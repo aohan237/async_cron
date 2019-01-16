@@ -23,9 +23,9 @@ job3 = CronJob(name='very_hour').every().hour.at(
 job3 = CronJob(name='hour').every().hour.at(
     ":00").go(tt, (5), age=99)
 job4 = CronJob(name='minute').every(1).minute.go(tt, (5), age=99)
-job4 = CronJob(name='weekday').weekday(2).at("11:18").go(tt, (5), age=99)
-job4 = CronJob(name='monthday').monthday(16).at("11:22").go(tt, (5), age=99)
-job4 = CronJob(name='monthday').every(5).monthday(
+job5 = CronJob(name='weekday').weekday(2).at("11:18").go(tt, (5), age=99)
+job6 = CronJob(name='monthday').monthday(16).at("11:22").go(tt, (5), age=99)
+job7 = CronJob(name='monthday').every(5).monthday(
     16).at("11:22").go(tt, (5), age=99)
 
 
@@ -33,6 +33,9 @@ msh.add_job(myjob)
 msh.add_job(job2)
 msh.add_job(job3)
 msh.add_job(job4)
+msh.add_job(job5)
+msh.add_job(job6)
+msh.add_job(job7)
 
 
 loop = asyncio.get_event_loop()
