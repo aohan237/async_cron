@@ -40,9 +40,11 @@ myjob = CronJob(name='test').every(5).second.go(test, (1, 2, 3), name=123)
 job2 = CronJob(name='tt', tolerance=100).at(
     "2019-01-15 16:12").go(tt, (5), age=99)
 
-# msh.add_job(myjob)
-msh.add_job(job2)
+job3 = CronJob(name='tt').every().hour.at(":38").go(tt, (5), age=99)
 
+# msh.add_job(myjob)
+# msh.add_job(job2)
+msh.add_job(job3)
 
 loop = asyncio.get_event_loop()
 

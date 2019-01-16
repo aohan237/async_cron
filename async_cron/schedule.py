@@ -7,8 +7,8 @@ class Scheduler:
     def __init__(self, name=None, check_interval: int=5,
                  loop=None, log_level=None):
         """
-        @param name:name of the scheduler
-        @param check_interval: check interval of the scheduler, unit is second
+        :param name:name of the scheduler
+        :param check_interval: check interval of the scheduler, unit is second
         """
         self.name = name
         self.check_interval = check_interval
