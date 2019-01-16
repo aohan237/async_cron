@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: async-cron
-Version: 1.1.0
+Version: 1.2.0
 Summary: asyncio crontab utils
 Home-page: https://github.com/aohan237/async_cron
 Author: aohan237
@@ -20,15 +20,12 @@ Description: # async_cron
         
         --------------
         
-        pip install async_cron
+        pip install async-cron
         
         ## Usage examples
         
         --------------
         
-        All you need is a loop, then enjoy. you can refer to examples, as well.
-        
-        Consumer:
         
         ```python
         import asyncio
@@ -51,9 +48,11 @@ Description: # async_cron
         job2 = CronJob(name='tt', tolerance=100).at(
             "2019-01-15 16:12").go(tt, (5), age=99)
         
-        # msh.add_job(myjob)
-        msh.add_job(job2)
+        job3 = CronJob(name='tt').every().hour.at(":38").go(tt, (5), age=99)
         
+        # msh.add_job(myjob)
+        # msh.add_job(job2)
+        msh.add_job(job3)
         
         loop = asyncio.get_event_loop()
         

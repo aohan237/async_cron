@@ -1,6 +1,0 @@
-SECOND = "seconds"
-MINUTE = "minutes"
-HOUR = "hours"
-DAY = "days"
-WEEK = "weeks"
-MONTH = "months"
