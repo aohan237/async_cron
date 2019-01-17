@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 
 
 install_requires = ['arrow']
-NAME = 'asyncnsq'
-PACKAGE = 'asyncnsq'
+NAME = 'async_cron'
+PACKAGE = 'async_cron'
 PY_VER = sys.version_info
 
 if PY_VER >= (3, 4):
@@ -14,7 +14,7 @@ if PY_VER >= (3, 4):
 elif PY_VER >= (3, 3):
     pass
 else:
-    raise RuntimeError("asyncnsq doesn't support Python version prior 3.3")
+    raise RuntimeError("async_cron doesn't support Python version prior 3.3")
 
 
 def read(*parts):

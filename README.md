@@ -1,6 +1,6 @@
 # async_cron
-[![Downloads](https://pepy.tech/badge/async_cron)](https://pepy.tech/project/async_cron)
-[![PyPI version](https://badge.fury.io/py/async_cron.svg)](https://badge.fury.io/py/async_cron)
+[![Downloads](https://pepy.tech/badge/async-cron)](https://pepy.tech/project/async-cron)
+[![PyPI version](https://badge.fury.io/py/async-cron.svg)](https://badge.fury.io/py/async-cron)
 
 this repo is influenced by schedule.
 
