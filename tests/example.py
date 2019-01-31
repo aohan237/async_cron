@@ -2,6 +2,7 @@ import asyncio
 
 from async_cron.job import CronJob
 from async_cron.schedule import Scheduler
+from async_cron.job_loader import FileJobLoader
 
 
 async def test(*args, **kwargs):
@@ -36,6 +37,17 @@ msh.add_job(job4)
 msh.add_job(job5)
 msh.add_job(job6)
 msh.add_job(job7)
+
+# */1,*,*,*,*,* test /bin/python,tt.py aa=123,bb=345 1
+
+
+f_cron = FileJobLoader(name='f_cron', file_path='t_cron',
+                       log_path='.', thread=False)
+
+fjob = CronJob(name='fjob', run_total=1).every(
+    1).second.go(f_cron.run, msh)
+
+msh.add_job(fjob)
 
 
 loop = asyncio.get_event_loop()

@@ -53,6 +53,20 @@ class CronJob:
         self.tolerance = datetime.timedelta(
             seconds=tolerance)
 
+    def __repr__(self):
+        return f"{self.name}-{self.interval}:{self.unit}-{self.at_time}\
+            -{self.at_exact_time}-{self.run_total}"
+
+    def __eq__(self, job=None):
+        if (self.interval == job.interval and
+                self.unit == job.unit and
+                self.at_time == job.at_time and
+                self.run_total == job.run_total and
+                self.at_exact_time == job.at_exact_time):
+            return True
+        else:
+            return False
+
     def check_gte_day(self):
         if self.unit in (SECOND, MINUTE, HOUR):
             self.gte_day = False

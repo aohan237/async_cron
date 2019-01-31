@@ -59,6 +59,21 @@ msh.add_job(job5)
 msh.add_job(job6)
 msh.add_job(job7)
 
+# jobload is only a special job,who gen jobs from config
+# below means, this job load will check every 1 second for cron updates
+# if any updates found,new job will be add to scheduler
+# you dont have the direct way to delete jobs
+# but you can modify the crons total_times to 0 or 1 to delete it
+# by default,FileJobLoader use MultiThread,you can use MultiProcess by add
+# thread=False
+
+f_cron = FileJobLoader(name='f_cron', file_path='t_cron', log_path='.',thread=False)
+
+fjob = CronJob(name='fjob', run_total=1).every(
+    1).second.go(f_cron.run, msh)
+
+msh.add_job(fjob)
+
 
 loop = asyncio.get_event_loop()
 
@@ -67,6 +82,27 @@ try:
 except KeyboardInterrupt:
     print('exit')
 ```
+
+## cron file useage:
+
+parameter separate by blank.in item separate by comma
+
+cron|name|job|env|run_times
+-|-|-|-|-
+`*/1,*,*,*,*,*`|test|/bin/python,tt.py|aa=123,bb=345|10
+
+example as follow:
+
+common cron 
+
+`*/1,*,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 1
+
+delete cron  
+`*/1,*,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 0
+
+cron only support:  
+ `*`,`10`,`*/10` format. which is finished mostly screen
+
 
 License
 -------

@@ -21,13 +21,20 @@ class Scheduler:
             try:
                 await self.check_jobs()
                 await asyncio.sleep(self.check_interval)
+            except KeyboardInterrupt:
+                self.logger.info('error occurs,exit')
+                break
             except Exception as tmp:
                 self.logger.exception(tmp)
                 self.logger.info('error occurs,exit')
                 break
 
     def add_job(self, job: CronJob=None):
-        self.jobs[job.name] = job
+        if job.name in self.jobs:
+            if self.jobs[job.name] == job:
+                pass
+        else:
+            self.jobs[job.name] = job
 
     def del_job(self, job_name: str=None):
         if job_name in self.jobs:
