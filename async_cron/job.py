@@ -6,7 +6,9 @@ import uuid
 from dateutil import tz
 import datetime
 from .units import SECOND, MINUTE, HOUR, DAY, MONTH, WEEK
-from .logger import get_logger
+import logging
+
+logger = logging.getLogger(__package__)
 
 
 class CronJob:
@@ -14,9 +16,9 @@ class CronJob:
     periodic job
     """
 
-    def __init__(self, name: str=None, interval: int=1, scheduler=None,
-                 loop=None, tz: str=None, run_total: int=None,
-                 tolerance: int=10, log_level=None):
+    def __init__(self, name: str = None, interval: int = 1, scheduler=None,
+                 loop=None, tz: str = None, run_total: int = None,
+                 tolerance: int = 10):
         """
         :param name: crontab name
         :param interval: crontab apply interval
@@ -27,8 +29,6 @@ class CronJob:
         :       with this parameter,you can limit its cron task count
         :param tolerance: crontab tolerance. time tolerance, within is range,
         :       task will still be applied
-        :param log_level: log_level,string. only support 'debug',
-                will show more infomation
         """
         self.name = name or str(uuid.uuid1())
         self.interval = interval
@@ -47,7 +47,6 @@ class CronJob:
         self.loop = loop or asyncio.get_event_loop()
         self.gte_day = False
         self.tz = tz
-        self.logger = get_logger(log_level=log_level)
         # tolerance means if now - at_exact_time <= tolerance,
         # this job will still be applied
         self.tolerance = datetime.timedelta(
@@ -151,13 +150,13 @@ class CronJob:
         if not self.at_exact_time:
             self.next_run = self.last_run.shift(**{self.unit: self.interval})
 
-    def split_time(self, time_string: str=None):
+    def split_time(self, time_string: str = None):
         hour, minute = time_string.split(':')
         hour = int(hour) if hour else None
         minute = int(minute) if minute else None
         return (hour, minute)
 
-    def at(self, time_string: str=None, time_shift=8):
+    def at(self, time_string: str = None, time_shift=8):
         if time_string is None:
             pass
         else:
@@ -171,17 +170,17 @@ class CronJob:
                     self.at_exact_time = arrow_time
                     self.run_total = 1
                 except Exception as tmp:
-                    self.logger.exception(tmp)
-                    self.logger.info('parse datetime error')
+                    logger.exception(tmp)
+                    logger.info(f'{self.name} parse datetime error')
             else:
                 try:
                     self.at_time = self.split_time(time_string)
                 except Exception as tmp:
-                    self.logger.exception(tmp)
-                    self.logger.info('parse hour and minute error')
+                    logger.exception(tmp)
+                    logger.info(f'{self.name} parse hour and minute error')
         return self
 
-    def every(self, interval: int=None):
+    def every(self, interval: int = None):
         if interval is None:
             pass
         else:
@@ -216,12 +215,12 @@ class CronJob:
         self.unit = WEEK
         return self
 
-    def weekday(self, week_day: int=None):
+    def weekday(self, week_day: int = None):
         self.unit = WEEK
         self.week_day = week_day
         return self
 
-    def monthday(self, month_day: int=None):
+    def monthday(self, month_day: int = None):
         self.unit = MONTH
         self.month_day = month_day
         return self

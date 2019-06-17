@@ -1,8 +1,10 @@
 from .job import CronJob
-from .logger import get_logger
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 import asyncio
 import subprocess
+import logging
+
+logger = logging.getLogger(__package__)
 
 
 class JobLoader:
@@ -15,7 +17,6 @@ class JobLoader:
             self.executor = ProcessPoolExecutor()
         self.loop = loop or asyncio.get_event_loop()
         self.log_path = log_path.strip('/')
-        self.logger = get_logger(log_level=log_level)
 
     async def load(self):
         raise NotImplementedError
@@ -33,14 +34,14 @@ class JobLoader:
 
     def create_executor_task(self, command=None, env=None,
                              name=None, log_path=None):
-        self.logger.info('create_executor_task---start\n\n')
+        logger.info('create_executor_task---start\n\n')
         try:
             result = self.loop.run_in_executor(
                 self.executor, self.sub_process_command, *(command, env, name,
                                                            log_path))
         except Exception as tmp:
-            self.logger.info('create_executor_task_exception')
-            self.logger.exception(tmp)
+            logger.info('create_executor_task_exception')
+            logger.exception(tmp)
             result = None
         return result
 
@@ -72,8 +73,8 @@ class JobLoader:
                        env=env, name=name, log_path=self.log_path)
             return job
         except Exception as tmp:
-            self.logger.info('cron file format error')
-            self.logger.exception(tmp)
+            logger.info('cron file format error')
+            logger.exception(tmp)
             return None
 
     def parse_cron(self, cron=None, name=None, total_times=None):
@@ -157,7 +158,7 @@ class JobLoader:
                     self.add_job_schedule(job, schedule)
             print(schedule.jobs)
         except KeyboardInterrupt:
-            self.logger.info('keyboard exit')
+            logger.info('keyboard exit')
             self.executor.shutdown()
 
     @staticmethod

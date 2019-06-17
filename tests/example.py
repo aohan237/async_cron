@@ -13,7 +13,7 @@ def tt(*args, **kwargs):
     print(args, kwargs)
 
 
-msh = Scheduler()
+msh = Scheduler(locale="zh_CN")
 myjob = CronJob(name='test', run_total=3).every(
     5).second.go(test, (1, 2, 3), name=123)
 job2 = CronJob(name='exact', tolerance=100).at(
