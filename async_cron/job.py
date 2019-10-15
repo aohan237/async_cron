@@ -40,6 +40,8 @@ class CronJob:
         self.next_run = None
         self.run_count = 0
         self.run_total = run_total
+        self.start_hour = None
+        self.end_hour = None
         self.period = None
         self.week_day = None
         self.month_day = None
@@ -113,11 +115,31 @@ class CronJob:
                     return True
             elif hour is not None:
                 if now_datetime.hour == hour:
-                    return True
+                    if self.start_hour is not None and self.end_hour is not None:
+                        if int(self.start_hour) <= hour <= int(self.end_hour):
+                            return True
+                    elif self.start_hour is not None:
+                        if int(self.start_hour) <= hour:
+                            return True
+                    elif self.end_hour is not None:
+                        if hour <= int(self.end_hour):
+                            return True
+                    else:
+                        return True
             elif minute is not None:
                 if now_datetime.minute == minute:
-                    print(now_datetime.minute, minute)
-                    return True
+                    hour = now_datetime.hour
+                    if self.start_hour is not None and self.end_hour is not None:
+                        if int(self.start_hour) <= hour <= int(self.end_hour):
+                            return True
+                    elif self.start_hour is not None:
+                        if int(self.start_hour) <= hour:
+                            return True
+                    elif self.end_hour is not None:
+                        if hour <= int(self.end_hour):
+                            return True
+                    else:
+                        return True
             else:
                 return True
         return False
@@ -203,6 +225,14 @@ class CronJob:
     def hour(self):
         self.unit = HOUR
         self.check_gte_day()
+        return self
+
+    def from_hour(self, hour: int = None):
+        self.start_hour = hour
+        return self
+
+    def to_hour(self, hour: int = None):
+        self.end_hour = hour
         return self
 
     @property
