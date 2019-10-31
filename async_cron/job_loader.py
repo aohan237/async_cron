@@ -86,7 +86,9 @@ class JobLoader:
         day_every, day_at_time = self.parse_detail(day)
         hour_every, hour_at_time = self.parse_detail(hour)
         minute_every, minute_at_time = self.parse_detail(minute)
-
+        if minute_at_time is None:
+            minute_at_time = ''
+            
         tmp_job = CronJob(name=name, run_total=total_times)
         if (year_at_time and month_at_time and day_at_time and
                 hour_at_time and minute_at_time):
@@ -102,26 +104,26 @@ class JobLoader:
             if day_at_time is not None:
                 tmp_job = tmp_job.month_day(day_at_time)
             if hour_at_time is not None and minute is not None:
-                tmp_job = tmp_job.at_time(f'{hour_at_time}:{minute_at_time}')
+                tmp_job = tmp_job.at(f'{hour_at_time}:{minute_at_time}')
         elif week != '*':
             if week_every is None:
                 month_every = 1
             if week_at_time is not None:
                 tmp_job = tmp_job.week_day(week_at_time)
             if hour_at_time is not None and minute is not None:
-                tmp_job = tmp_job.at_time(f'{hour_at_time}:{minute_at_time}')
+                tmp_job = tmp_job.at(f'{hour_at_time}:{minute_at_time}')
         elif day != '*':
             if day_every is None:
                 day_every = 1
             tmp_job = tmp_job.every(day_every).day
             if hour_at_time is not None and minute is not None:
-                tmp_job = tmp_job.at_time(f'{hour_at_time}:{minute_at_time}')
+                tmp_job = tmp_job.at(f'{hour_at_time}:{minute_at_time}')
         elif hour != '*':
             if hour_every is None:
                 hour_every = 1
             tmp_job = tmp_job.every(hour_every).hour
             if minute is not None:
-                tmp_job = tmp_job.at_time(f':{minute_at_time}')
+                tmp_job = tmp_job.at(f':{minute_at_time}')
         elif minute != '*':
             if minute_every is None:
                 minute_every = 1
@@ -145,6 +147,8 @@ class JobLoader:
         if at_time is not None:
             if '*' not in at_time:
                 at_time = int(at_time)
+            else:
+                at_time = None
         return every, at_time
 
     def gen_job(self, data=None):
