@@ -96,20 +96,19 @@ class JobLoader:
                 f"{year_at_time}-{month_at_time}-{day_at_time}\
                      {hour_at_time}:{minute_at_time}")
             return tmp_job
-
         if month != '*':
             if month_every is None:
                 month_every = 1
             tmp_job = tmp_job.every(month_every)
             if day_at_time is not None:
-                tmp_job = tmp_job.month_day(day_at_time)
+                tmp_job = tmp_job.monthday(day_at_time)
             if hour_at_time is not None and minute is not None:
                 tmp_job = tmp_job.at(f'{hour_at_time}:{minute_at_time}')
         elif week != '*':
             if week_every is None:
-                month_every = 1
+                week_every = 1
             if week_at_time is not None:
-                tmp_job = tmp_job.week_day(week_at_time)
+                tmp_job = tmp_job.weekday(week_at_time)
             if hour_at_time is not None and minute is not None:
                 tmp_job = tmp_job.at(f'{hour_at_time}:{minute_at_time}')
         elif day != '*':
