@@ -16,8 +16,13 @@ class CronJob:
     periodic job
     """
 
-    def __init__(self, name: str = None, interval: int = 1, scheduler=None,
-                 loop=None, tz: str = None, run_total: int = None,
+    def __init__(self,
+                 name: str = None,
+                 interval: int = 1,
+                 scheduler=None,
+                 loop=None,
+                 tz: str = None,
+                 run_total: int = None,
                  tolerance: int = 10):
         """
         :param name: crontab name
@@ -51,19 +56,17 @@ class CronJob:
         self.tz = tz
         # tolerance means if now - at_exact_time <= tolerance,
         # this job will still be applied
-        self.tolerance = datetime.timedelta(
-            seconds=tolerance)
+        self.tolerance = datetime.timedelta(seconds=tolerance)
 
     def __repr__(self):
         return f"{self.name}-{self.interval}:{self.unit}-{self.at_time}\
             -{self.at_exact_time}-{self.run_total}"
 
     def __eq__(self, job=None):
-        if (self.interval == job.interval and
-                self.unit == job.unit and
-                self.at_time == job.at_time and
-                self.run_total == job.run_total and
-                self.at_exact_time == job.at_exact_time):
+        if (self.interval == job.interval and self.unit == job.unit
+                and self.at_time == job.at_time
+                and self.run_total == job.run_total
+                and self.at_exact_time == job.at_exact_time):
             return True
         else:
             return False
@@ -93,8 +96,8 @@ class CronJob:
         now = self.get_now()
         if self.at_exact_time:
             # check if it is a exact run func
-            if (now >= self.at_exact_time and
-                    now - self.at_exact_time <= self.tolerance):
+            if (now >= self.at_exact_time
+                    and now - self.at_exact_time <= self.tolerance):
                 return True
             else:
                 return False
@@ -110,8 +113,8 @@ class CronJob:
             now_datetime = now.datetime
             hour, minute = self.at_time
             if hour is not None and minute is not None:
-                if (now_datetime.hour == hour and
-                        now_datetime.minute == minute):
+                if (now_datetime.hour == hour
+                        and now_datetime.minute == minute):
                     return True
             elif hour is not None:
                 if now_datetime.hour == hour:
@@ -170,6 +173,9 @@ class CronJob:
 
     def gen_next_run(self):
         if not self.at_exact_time:
+            if not isinstance(self.unit, str):
+                raise Exception(
+                    f"self.unit must be specified: self.unit->{self.unit}")
             self.next_run = self.last_run.shift(**{self.unit: self.interval})
 
     def split_time(self, time_string: str = None):
@@ -187,8 +193,8 @@ class CronJob:
             if len(first) > 2:
                 try:
                     arrow_time = arrow.get(time_string)
-                    arrow_time = self.get_tz_time(
-                        arrow_time).shift(hours=-time_shift)
+                    arrow_time = self.get_tz_time(arrow_time).shift(
+                        hours=-time_shift)
                     self.at_exact_time = arrow_time
                     self.run_total = 1
                 except Exception as tmp:
