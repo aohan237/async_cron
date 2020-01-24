@@ -8,8 +8,13 @@ logger = logging.getLogger(__package__)
 
 
 class JobLoader:
-    def __init__(self, name=None, loop=None,
-                 log_path=None, log_level=None, thread=True, **kwargs):
+    def __init__(self,
+                 name=None,
+                 loop=None,
+                 log_path=None,
+                 log_level=None,
+                 thread=True,
+                 **kwargs):
         self.name = name
         if thread:
             self.executor = ThreadPoolExecutor()
@@ -27,18 +32,23 @@ class JobLoader:
         err_path_name = log_path + '/' + f'{name}_err.txt'
         out_log_file = open(out_path_name, 'a')
         err_log_file = open(err_path_name, 'a')
-        subprocess.run(command.split(','), env=env,
-                       stdout=out_log_file, stderr=err_log_file)
+        subprocess.run(command.split(','),
+                       env=env,
+                       stdout=out_log_file,
+                       stderr=err_log_file)
         out_log_file.close()
         err_log_file.close()
 
-    def create_executor_task(self, command=None, env=None,
-                             name=None, log_path=None):
+    def create_executor_task(self,
+                             command=None,
+                             env=None,
+                             name=None,
+                             log_path=None):
         logger.info('create_executor_task---start\n\n')
         try:
-            result = self.loop.run_in_executor(
-                self.executor, self.sub_process_command, *(command, env, name,
-                                                           log_path))
+            result = self.loop.run_in_executor(self.executor,
+                                               self.sub_process_command,
+                                               *(command, env, name, log_path))
         except Exception as tmp:
             logger.info('create_executor_task_exception')
             logger.exception(tmp)
@@ -55,7 +65,7 @@ class JobLoader:
     def parse(self, line_data):
         """
                 crontab           name job env total_times
-        example='*/2,*,*,*,*,* ceshi python,--name=12 aa=123,bb=345 10'
+        example='*/2,*,*,*,* ceshi python,--name=12 aa=123,bb=345 10'
         """
         try:
             cron, name, command, *env_total = line_data.split(' ')
@@ -65,12 +75,16 @@ class JobLoader:
             else:
                 env = env_total[0]
                 total_times = None
-            job = self.parse_cron(cron=cron, name=name,
+            job = self.parse_cron(cron=cron,
+                                  name=name,
                                   total_times=total_times)
             if job is not None:
                 env = self.parse_env(env_string=env)
-                job.go(self.create_executor_task, command=command,
-                       env=env, name=name, log_path=self.log_path)
+                job.go(self.create_executor_task,
+                       command=command,
+                       env=env,
+                       name=name,
+                       log_path=self.log_path)
             return job
         except Exception as tmp:
             logger.info('cron file format error')
@@ -78,9 +92,7 @@ class JobLoader:
             return None
 
     def parse_cron(self, cron=None, name=None, total_times=None):
-        minute, hour, day, week, month, year = [
-            i.strip() for i in cron.split(',')]
-        year_every, year_at_time = self.parse_detail(year)
+        minute, hour, day, month, week = [i.strip() for i in cron.split(',')]
         month_every, month_at_time = self.parse_detail(month)
         week_every, week_at_time = self.parse_detail(week)
         day_every, day_at_time = self.parse_detail(day)
@@ -88,10 +100,8 @@ class JobLoader:
         minute_every, minute_at_time = self.parse_detail(minute)
 
         tmp_job = CronJob(name=name, run_total=total_times)
-        if (year_at_time and month_at_time and day_at_time and
-                hour_at_time and minute_at_time):
-            tmp_job = tmp_job.at(
-                f"{year_at_time}-{month_at_time}-{day_at_time}\
+        if (month_at_time and day_at_time and hour_at_time and minute_at_time):
+            tmp_job = tmp_job.at(f"{month_at_time}-{day_at_time}\
                      {hour_at_time}:{minute_at_time}")
             return tmp_job
 
@@ -167,7 +177,6 @@ class JobLoader:
 
 
 class FileJobLoader(JobLoader):
-
     def __init__(self, file_path=None, **kwargs):
         super(FileJobLoader, self).__init__(**kwargs)
         self.file_path = file_path

@@ -89,19 +89,19 @@ parameter separate by blank.in item separate by comma
 
 cron|name|job|env|run_times
 -|-|-|-|-
-`*/1,*,*,*,*,*`|test|/bin/python,tt.py|aa=123,bb=345|10
+`*/1,*,*,*,*`|test|/bin/python,tt.py|aa=123,bb=345|10
 
 example as follow:
 
-common cron 
+common cron
 
-`*/1,*,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 1
+`*/1,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 1
 
-delete cron  
-`*/1,*,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 0
+delete cron
+`*/1,*,*,*,*` test /bin/python,tt.py aa=123,bb=345 0
 
-cron only support:  
- `*`,`10`,`*/10` format. which is finished mostly screen
+cron only support:
+ `*`,`10`,`*/10` format. which fulfills mostly screen
 
 
 License
