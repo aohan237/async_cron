@@ -21,7 +21,7 @@ class CronJob:
                  interval: int = 1,
                  scheduler=None,
                  loop=None,
-                 tz: str = None,
+                 timezone: str = None,
                  run_total: int = None,
                  tolerance: int = 10):
         """
@@ -29,7 +29,7 @@ class CronJob:
         :param interval: crontab apply interval
         :param scheduler: crontab scheduler instance for now ,it is useless
         :param loop: asyncio running loop
-        :param tz: timezone info. support string tz format
+        :param timezone: timezone info. support string tz format
         :param run_total: crontab task total running times,
         :       with this parameter,you can limit its cron task count
         :param tolerance: crontab tolerance. time tolerance, within is range,
@@ -53,7 +53,7 @@ class CronJob:
         self.scheduler = scheduler
         self.loop = loop or asyncio.get_event_loop()
         self.gte_day = False
-        self.tz = tz
+        self.timezone = timezone
         # tolerance means if now - at_exact_time <= tolerance,
         # this job will still be applied
         self.tolerance = datetime.timedelta(seconds=tolerance)
@@ -79,15 +79,15 @@ class CronJob:
 
     def get_now(self):
         now = arrow.utcnow()
-        if self.tz:
-            now = now.to(self.tz)
+        if self.timezone:
+            now = now.to(self.timezone)
         else:
             now = now.to(tz.tzlocal())
         return now
 
     def get_tz_time(self, arw=None):
-        if self.tz:
-            arw = arw.to(self.tz)
+        if self.timezone:
+            arw = arw.to(self.timezone)
         else:
             arw = arw.to(tz.tzlocal())
         return arw
@@ -95,7 +95,7 @@ class CronJob:
     def decide_run(self):
         now = self.get_now()
         if self.at_exact_time:
-            # check if it is a exact run func
+            # check if it is an exact run func
             if (now >= self.at_exact_time
                     and now - self.at_exact_time <= self.tolerance):
                 return True
@@ -161,7 +161,7 @@ class CronJob:
         if self.job_func is None:
             return
         now = self.get_now()
-        # recodrd run args
+        # record run args
         self.last_run = now
         self.run_count += 1
         # run job_func
@@ -182,9 +182,9 @@ class CronJob:
         hour, minute = time_string.split(':')
         hour = int(hour) if hour else None
         minute = int(minute) if minute else None
-        return (hour, minute)
+        return hour, minute
 
-    def at(self, time_string: str = None, time_shift=8):
+    def at(self, time_string: str = None, time_shift=0):
         if time_string is None:
             pass
         else:
@@ -193,19 +193,18 @@ class CronJob:
             if len(first) > 2:
                 try:
                     arrow_time = arrow.get(time_string)
-                    arrow_time = self.get_tz_time(arrow_time).shift(
-                        hours=-time_shift)
+                    arrow_time = self.get_tz_time(arrow_time).shift(hours=-time_shift)
                     self.at_exact_time = arrow_time
                     self.run_total = 1
                 except Exception as tmp:
                     logger.exception(tmp)
-                    logger.info(f'{self.name} parse datetime error')
+                    logger.debug('{} parse datetime error'.format(self.name))
             else:
                 try:
                     self.at_time = self.split_time(time_string)
                 except Exception as tmp:
                     logger.exception(tmp)
-                    logger.info(f'{self.name} parse hour and minute error')
+                    logger.debug('{} parse hour and minute error'.format(self.name))
         return self
 
     def every(self, interval: int = None):

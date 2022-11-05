@@ -6,8 +6,8 @@ logger = logging.getLogger(__package__)
 
 
 class Scheduler:
-    def __init__(self, name=None, check_interval: int = 5,
-                 loop=None, log_level=None, locale=None):
+    def __init__(self, name=None, check_interval: int = 1,
+                 loop=None, debug=False, locale=None):
         """
         :param name:name of the scheduler
         :param check_interval: check interval of the scheduler, unit is second
@@ -17,7 +17,9 @@ class Scheduler:
         self.check_interval = check_interval
         self.loop = loop or asyncio.get_event_loop()
         self.jobs = {}
-        self.locale = locale or "zh_CN"
+        self.locale = locale or "en_US"
+        if not debug:
+            logger.setLevel(logging.ERROR)
 
     async def start(self):
         while True:
@@ -25,11 +27,11 @@ class Scheduler:
                 await self.check_jobs()
                 await asyncio.sleep(self.check_interval)
             except KeyboardInterrupt:
-                logger.info('keyboard interrupt,exit')
+                logger.debug('keyboard interrupt,exit')
                 break
             except Exception as tmp:
                 logger.exception(tmp)
-                logger.info('error occurs,exit')
+                logger.debug('error occurs,exit')
                 break
 
     def add_job(self, job: CronJob = None):
@@ -43,18 +45,17 @@ class Scheduler:
         if job_name in self.jobs:
             del self.jobs[job_name]
         else:
-            logger.info(f'{job_name} is in scheduler jobs list')
+            logger.debug('{} is in scheduler jobs list'.format(job_name))
 
     async def check_jobs(self):
         remove_list = []
         for name, job in self.jobs.items():
             if job.decide_run():
                 now = job.get_now()
-                logger.info(
-                    f'runing:{job.name}:{now.humanize(locale=self.locale)}')
+                logger.debug('running:{}:{}'.format(job.name, now.humanize(locale=self.locale)))
                 job.run()
                 if job.remove():
                     remove_list.append(name)
         for i in remove_list:
             self.del_job(i)
-            logger.info(f'{i} is out of date ,delete')
+            logger.debug('{} is out of date, remove job'.format(i))
