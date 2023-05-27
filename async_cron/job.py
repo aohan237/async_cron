@@ -106,9 +106,9 @@ class CronJob:
             if now >= self.next_run:
                 return True
         else:
-            if self.month_day is not None and self.month_day != now.day:
+            if self.month_day and self.month_day != now.day:
                 return False
-            if self.week_day and self.week_day != now.weekday():
+            if self.week_day is not None and self.week_day != now.weekday():
                 return False
             now_datetime = now.datetime
             hour, minute = self.at_time
