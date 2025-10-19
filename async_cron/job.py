@@ -104,6 +104,13 @@ class CronJob:
 
         if self.next_run:
             if now >= self.next_run:
+                # IMPORTANT BUGFIX: Always check weekday conditions for weekly jobs,
+                # even after next_run is set. The original code only checked weekdays
+                # on the first run, then ignored them completely for subsequent runs.
+                if self.week_day is not None and self.week_day != now.weekday():
+                    return False
+                if self.month_day and self.month_day != now.day:
+                    return False
                 return True
         else:
             if self.month_day and self.month_day != now.day:
