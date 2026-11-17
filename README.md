@@ -103,6 +103,25 @@ delete cron
 cron only support:
  `*`,`10`,`*/10` format. which fulfills mostly screen
 
+## Event loops
+
+`CronJob`, `Scheduler`, `JobLoader`, and `FileJobLoader` reuse an explicitly
+supplied loop or the current event loop. When no loop exists, they create and
+install one, including on Python 3.14 and in worker threads. If you construct
+these objects synchronously, run them on that same loop and close the loop on
+shutdown. When using `asyncio.run(main())`, construct them inside `main()` so
+their asynchronous work uses the running loop.
+
+## Tests
+
+Install the package and run either test entry point:
+
+```sh
+python -m pip install -e .
+python runtests.py -v
+python -m unittest discover -s tests -p 'test_*.py' -v
+```
+
 
 License
 -------

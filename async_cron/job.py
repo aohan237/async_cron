@@ -1,12 +1,12 @@
 import arrow
 import inspect
 import functools
-import asyncio
 import uuid
 from dateutil import tz
 import datetime
 from .units import SECOND, MINUTE, HOUR, DAY, MONTH, WEEK
 import logging
+from ._event_loop import get_event_loop
 
 logger = logging.getLogger(__package__)
 
@@ -51,16 +51,7 @@ class CronJob:
         self.week_day = None
         self.month_day = None
         self.scheduler = scheduler
-        if loop is None:
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                # Python >= 3.14 no longer creates an event loop implicitly
-                # in the main thread - keep the historical behavior of this
-                # library by creating and installing one instead
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-        self.loop = loop
+        self.loop = get_event_loop(loop)
         self.gte_day = False
         self.tz = tz
         # tolerance means if now - at_exact_time <= tolerance,
