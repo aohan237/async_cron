@@ -1,8 +1,8 @@
 from .job import CronJob
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
-import asyncio
 import subprocess
 import logging
+from ._event_loop import get_event_loop
 
 logger = logging.getLogger(__package__)
 
@@ -20,7 +20,7 @@ class JobLoader:
             self.executor = ThreadPoolExecutor()
         else:
             self.executor = ProcessPoolExecutor()
-        self.loop = loop or asyncio.get_event_loop()
+        self.loop = get_event_loop(loop)
         self.log_path = log_path.strip('/')
 
     async def load(self):
@@ -184,8 +184,8 @@ class FileJobLoader(JobLoader):
     async def load(self):
         result = []
         if self.file_path:
-            file = open(self.file_path, 'r')
-            crons = [i.strip('\n').strip() for i in file.readlines()]
+            with open(self.file_path, 'r') as file:
+                crons = [i.strip('\n').strip() for i in file.readlines()]
             for i in crons:
                 tmp_cron = self.parse(i)
                 if tmp_cron is not None:

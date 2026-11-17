@@ -1,12 +1,12 @@
 import arrow
 import inspect
 import functools
-import asyncio
 import uuid
 from dateutil import tz
 import datetime
 from .units import SECOND, MINUTE, HOUR, DAY, MONTH, WEEK
 import logging
+from ._event_loop import get_event_loop
 
 logger = logging.getLogger(__package__)
 
@@ -51,7 +51,7 @@ class CronJob:
         self.week_day = None
         self.month_day = None
         self.scheduler = scheduler
-        self.loop = loop or asyncio.get_event_loop()
+        self.loop = get_event_loop(loop)
         self.gte_day = False
         self.tz = tz
         # tolerance means if now - at_exact_time <= tolerance,

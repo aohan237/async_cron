@@ -1,6 +1,7 @@
 import asyncio
 from .job import CronJob
 import logging
+from ._event_loop import get_event_loop
 
 logger = logging.getLogger(__package__)
 
@@ -15,7 +16,7 @@ class Scheduler:
         """
         self.name = name
         self.check_interval = check_interval
-        self.loop = loop or asyncio.get_event_loop()
+        self.loop = get_event_loop(loop)
         self.jobs = {}
         self.locale = locale or "zh_CN"
 

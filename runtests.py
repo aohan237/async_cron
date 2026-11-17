@@ -1,5 +1,5 @@
 
-"""Run asyncnsq unittests.
+"""Run async_cron unittests.
 
 Usage:
   python3 runtests.py [flags] [pattern] ...
@@ -30,7 +30,7 @@ import sys
 import unittest
 import traceback
 import textwrap
-import importlib.machinery
+import importlib.util
 try:
     import coverage
 except ImportError:
@@ -38,7 +38,7 @@ except ImportError:
 
 from unittest.signals import installHandler
 
-assert sys.version >= '3.3', 'Please use Python 3.3 or higher.'
+assert sys.version_info >= (3, 3), 'Please use Python 3.3 or higher.'
 
 ARGS = argparse.ArgumentParser(description="Run all unittests.")
 ARGS.add_argument(
@@ -90,10 +90,12 @@ def load_modules(basedir, suffix='.py', *, verbose=False):
         for name in os.listdir(dir):
             path = os.path.join(dir, name)
 
+            if name.startswith('.') or name == '__pycache__':
+                continue
             if os.path.isdir(path):
                 files.extend(list_dir('{}{}.'.format(prefix, name), path))
             else:
-                if (name != '__init__.py' and
+                if (name.startswith('test') and
                     name.endswith(suffix) and
                     not name.startswith(('.', '_'))):
                     files.append(('{}{}'.format(prefix, name[:-3]), path))
@@ -105,8 +107,11 @@ def load_modules(basedir, suffix='.py', *, verbose=False):
         if modname == 'runtests':
             continue
         try:
-            loader = importlib.machinery.SourceFileLoader(modname, sourcefile)
-            mods.append((loader.load_module(), sourcefile))
+            spec = importlib.util.spec_from_file_location(modname, sourcefile)
+            mod = importlib.util.module_from_spec(spec)
+            sys.modules[modname] = mod
+            spec.loader.exec_module(mod)
+            mods.append((mod, sourcefile))
         except SyntaxError:
             raise
         except Exception as err:
@@ -138,8 +143,11 @@ class TestsFinder:
                                                verbose=self._verbose)]
         for mod in mods:
             for name in set(dir(mod)):
-                if name.endswith('Test'):
-                    self._test_factories.append(getattr(mod, name))
+                candidate = getattr(mod, name)
+                if (isinstance(candidate, type)
+                        and issubclass(candidate, unittest.TestCase)
+                        and candidate.__module__ == mod.__name__):
+                    self._test_factories.append(candidate)
 
     def load_tests(self):
         """
@@ -241,23 +249,23 @@ def runtests():
 
     if args.coverage:
         cov = coverage.coverage(branch=True,
-                                source=['asyncnsq'],
+                                source=['async_cron'],
                                 )
         cov.start()
 
     finder = TestsFinder(args.testsdir, includes, excludes,
                          verbose=args.verbose)
-    self.logger = logging.getself.logger()
+    logger = logging.getLogger(__name__)
     if v == 0:
-        self.logger.setLevel(logging.CRITICAL)
+        logger.setLevel(logging.CRITICAL)
     elif v == 1:
-        self.logger.setLevel(logging.ERROR)
+        logger.setLevel(logging.ERROR)
     elif v == 2:
-        self.logger.setLevel(logging.WARNING)
+        logger.setLevel(logging.WARNING)
     elif v == 3:
-        self.logger.setLevel(logging.INFO)
+        logger.setLevel(logging.INFO)
     elif v >= 4:
-        self.logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
     if catchbreak:
         installHandler()
     try:
